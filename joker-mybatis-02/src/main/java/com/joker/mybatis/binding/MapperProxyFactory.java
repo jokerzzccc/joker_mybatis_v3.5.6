@@ -1,11 +1,13 @@
 package com.joker.mybatis.binding;
 
+import com.joker.mybatis.session.SqlSession;
+
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
 /**
  * <p>
- *
+ * 映射器代理对象工厂
  * </p>
  *
  * @author jokerzzccc
@@ -19,7 +21,8 @@ public class MapperProxyFactory<T> {
         this.mapperInterface = mapperInterface;
     }
 
-    public T newInstance(Map<String, String> sqlSession) {
+    @SuppressWarnings("unchecked")
+    public T newInstance(SqlSession sqlSession) {
         final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface);
         return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[]{mapperInterface}, mapperProxy);
     }

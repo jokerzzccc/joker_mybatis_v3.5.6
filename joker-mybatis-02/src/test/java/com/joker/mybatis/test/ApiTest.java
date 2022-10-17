@@ -1,6 +1,9 @@
 package com.joker.mybatis.test;
 
 import com.joker.mybatis.binding.MapperProxyFactory;
+import com.joker.mybatis.binding.MapperRegistry;
+import com.joker.mybatis.session.SqlSession;
+import com.joker.mybatis.session.defaults.DefaultSqlSessionFactory;
 import com.joker.mybatis.test.dao.IUserDao;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,29 +28,21 @@ public class ApiTest {
     private Logger logger = LoggerFactory.getLogger(ApiTest.class);
 
     @Test
-    public void test_MapperProxyFactory() {
-        MapperProxyFactory<IUserDao> factory = new MapperProxyFactory<>(IUserDao.class);
-        Map<String, String> sqlSession = new HashMap<>();
+    public void test_SqlSessionFactory() {
+        // 1. 注册 Mapper
+        final MapperRegistry registry = new MapperRegistry();
+        registry.addMappers("com.joker.mybatis.test.dao");
 
-        sqlSession.put("com.joker.mybatis.test.dao.IUserDao.queryUserName", "name: jokerzzccc(模拟执行 Mapper.xml 中 SQL 语句的操作：查询用户姓名)");
-        sqlSession.put("com.joker.mybatis.test.dao.IUserDao.queryUserAge", "age: 1024(模拟执行 Mapper.xml 中 SQL 语句的操作：查询用户年龄)");
-        IUserDao userDao = factory.newInstance(sqlSession);
+        // 2. 从 SqlSessionFactory 获取 SqlSession
+        final DefaultSqlSessionFactory sqlSessionFactory = new DefaultSqlSessionFactory(registry);
+        final SqlSession sqlSession = sqlSessionFactory.openSession();
 
-        String resName = userDao.queryUserName("10001");
-        String resAge = userDao.queryUserAge("10001");
-        logger.info("测试结果：{}", resName);
-        logger.info("测试结果：{}", resAge);
+        // 3. 获取映射器对象(Mapper)
+        final IUserDao userDao = sqlSession.getMapper(IUserDao.class);
 
-    }
-
-    @Test
-    public void test_proxy_class() {
-        IUserDao userDao = (IUserDao) Proxy.newProxyInstance(
-                Thread.currentThread().getContextClassLoader(),
-                new Class[]{IUserDao.class}, (proxy, method, args) -> "你被代理了");
-//        String result = userDao.queryUserName("10001");
-        String result = userDao.queryUserAge("10001");
-        System.out.println("测试结果：" + result);
+        // 4. 测试验证
+        final String res = userDao.queryUserName("10001");
+        logger.info("测试结果：{}", res);
     }
 
 }
