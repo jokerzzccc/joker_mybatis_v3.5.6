@@ -1,6 +1,7 @@
 package com.joker.mybatis.session.defaults;
 
 import com.joker.mybatis.binding.MapperRegistry;
+import com.joker.mybatis.session.Configuration;
 import com.joker.mybatis.session.SqlSession;
 import com.joker.mybatis.session.SqlSessionFactory;
 
@@ -15,15 +16,15 @@ import com.joker.mybatis.session.SqlSessionFactory;
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
-    private final MapperRegistry mapperRegistry;
+    private final Configuration configuration;
 
-    public DefaultSqlSessionFactory(MapperRegistry mapperRegistry) {
-        this.mapperRegistry = mapperRegistry;
+    public DefaultSqlSessionFactory(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
     public SqlSession openSession() {
-        return new DefaultSqlSession(mapperRegistry);
+        return new DefaultSqlSession(configuration);
     }
 
 }
