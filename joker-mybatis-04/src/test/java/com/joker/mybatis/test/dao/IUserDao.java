@@ -1,5 +1,7 @@
 package com.joker.mybatis.test.dao;
 
+import com.joker.mybatis.test.po.User;
+
 /**
  * <p>
  *
@@ -10,6 +12,6 @@ package com.joker.mybatis.test.dao;
  */
 public interface IUserDao {
 
-    String queryUserInfoById(String uId);
+    User queryUserInfoById(long uId);
 
 }
