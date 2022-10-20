@@ -37,35 +37,26 @@ public class ApiTest {
 
     private Logger logger = LoggerFactory.getLogger(ApiTest.class);
 
+    /**
+     * 在无池化和有池化的测试中，基础的单元测试类不需要改变，仍是通过 SqlSessionFactory 中获取 SqlSession 并获得映射对象和执行方法调用。
+     * 另外这里是添加了50次的查询调用，便于验证连接池的创建和获取以及等待。
+     * 变化的在于 mybatis-config-datasource.xml 中 dataSource 数据源类型的调整 dataSource type="POOLED/UNPOOLED"
+     * @throws IOException
+     */
     @Test
     public void test_SqlSessionFactory() throws IOException {
-        // 1. 从 SqlSessionFactory 中获取 SqlSession
-        Reader reader = Resources.getResourceAsReader("mybatis-config-datasource.xml");
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        // 1. 从SqlSessionFactory中获取SqlSession
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(Resources.getResourceAsReader("mybatis-config-datasource.xml"));
         SqlSession sqlSession = sqlSessionFactory.openSession();
 
         // 2. 获取映射器对象
         IUserDao userDao = sqlSession.getMapper(IUserDao.class);
 
         // 3. 测试验证
-        User user = userDao.queryUserInfoById(1L);
-        logger.info("测试结果：{}", JSON.toJSONString(user));
-    }
-
-    @Test
-    public void test_selectOne() throws IOException {
-        // 解析 XML
-        Reader reader = Resources.getResourceAsReader("mybatis-config-datasource.xml");
-        XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader);
-        Configuration configuration = xmlConfigBuilder.parse();
-
-        // 获取 DefaultSqlSession
-        DefaultSqlSession sqlSession = new DefaultSqlSession(configuration);
-
-        // 执行查询，默认是一个集合参数
-        Object[] req = {1L};
-        Object res = sqlSession.selectOne("com.joker.mybatis.test.dao.IUserDao.queryUserInfoById", req);
-        logger.info("测试结果：{}", JSON.toJSONString(res));
+        for (int i = 0; i < 50; i++) {
+            User user = userDao.queryUserInfoById(1L);
+            logger.info("测试结果：{}", JSON.toJSONString(user));
+        }
     }
 
 }
