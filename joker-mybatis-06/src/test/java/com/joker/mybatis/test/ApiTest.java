@@ -24,6 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 /**
  * <p>
@@ -53,10 +56,8 @@ public class ApiTest {
         IUserDao userDao = sqlSession.getMapper(IUserDao.class);
 
         // 3. 测试验证
-        for (int i = 0; i < 50; i++) {
-            User user = userDao.queryUserInfoById(1L);
-            logger.info("测试结果：{}", JSON.toJSONString(user));
-        }
+        User user = userDao.queryUserInfoById(1L);
+        logger.info("测试结果：{}", JSON.toJSONString(user));
     }
 
 }
