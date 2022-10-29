@@ -53,6 +53,16 @@ public class UnpooledDataSource implements DataSource {
         }
     }
 
+    public UnpooledDataSource() {
+    }
+
+    public UnpooledDataSource(String driver, String url, String username, String password) {
+        this.driver = driver;
+        this.url = url;
+        this.username = username;
+        this.password = password;
+    }
+
     @Override
     public Connection getConnection() throws SQLException {
         return doGetConnection(username, password);
