@@ -1,16 +1,10 @@
 package com.joker.mybatis.session.defaults;
 
 import com.joker.mybatis.executor.Executor;
-import com.joker.mybatis.mapping.BoundSql;
-import com.joker.mybatis.mapping.Environment;
 import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.session.Configuration;
 import com.joker.mybatis.session.SqlSession;
 
-import java.lang.reflect.Method;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,8 +19,8 @@ import java.util.List;
  */
 public class DefaultSqlSession implements SqlSession {
 
-    private Configuration configuration;
-    private Executor executor;
+    private final Configuration configuration;
+    private final Executor executor;
 
     public DefaultSqlSession(Configuration configuration, Executor executor) {
         this.configuration = configuration;
@@ -41,7 +35,7 @@ public class DefaultSqlSession implements SqlSession {
     @Override
     public <T> T selectOne(String statement, Object parameter) {
         MappedStatement ms = configuration.getMappedStatement(statement);
-        List<T> list = executor.query(ms, parameter, Executor.NO_RESULT_HANDLER, ms.getBoundSql());
+        List<T> list = executor.query(ms, parameter, Executor.NO_RESULT_HANDLER, ms.getSqlSource().getBoundSql(parameter));
         return list.get(0);
     }
 

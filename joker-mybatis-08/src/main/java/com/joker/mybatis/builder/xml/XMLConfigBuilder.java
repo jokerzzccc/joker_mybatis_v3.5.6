@@ -3,10 +3,7 @@ package com.joker.mybatis.builder.xml;
 import com.joker.mybatis.builder.BaseBuilder;
 import com.joker.mybatis.datasource.DataSourceFactory;
 import com.joker.mybatis.io.Resources;
-import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.mapping.Environment;
-import com.joker.mybatis.mapping.MappedStatement;
-import com.joker.mybatis.mapping.SqlCommandType;
 import com.joker.mybatis.session.Configuration;
 import com.joker.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
@@ -16,10 +13,10 @@ import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
 import javax.sql.DataSource;
+import java.io.InputStream;
 import java.io.Reader;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * <p>
@@ -111,47 +108,22 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /*
+     * <mappers>
+     *	 <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
+     *	 <mapper resource="org/mybatis/builder/BlogMapper.xml"/>
+     *	 <mapper resource="org/mybatis/builder/PostMapper.xml"/>
+     * </mappers>
+     */
     private void mapperElement(Element mappers) throws Exception {
         List<Element> mapperList = mappers.elements("mapper");
         for (Element element : mapperList) {
             String resource = element.attributeValue("resource");
-            Reader reader = Resources.getResourceAsReader(resource);
-            SAXReader saxReader = new SAXReader();
-            Document document = saxReader.read(new InputSource(reader));
-            Element root = document.getRootElement();
-            // 命名空间
-            String namespace = root.attributeValue("namespace");
+            InputStream inputStream = Resources.getResourceAsStream(resource);
+            // 在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
+            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource);
+            mapperParser.parse();
 
-            // SELECT
-            List<Element> selectNodes = root.elements("select");
-            for (Element node : selectNodes) {
-                String id = node.attributeValue("id");
-                String parameterType = node.attributeValue("parameterType");
-                String resultType = node.attributeValue("resultType");
-                String sql = node.getText();
-
-                // 是否匹配
-                Map<Integer, String> parameter = new HashMap<>();
-                Pattern pattern = Pattern.compile("(#\\{(.*?)})");
-                Matcher matcher = pattern.matcher(sql);
-                for (int i = 1; matcher.find(); i++) {
-                    String g1 = matcher.group(1);
-                    String g2 = matcher.group(2);
-                    parameter.put(i, g2);
-                    sql = sql.replace(g1, "?");
-                }
-
-                String msId = namespace + "." + id;
-                String nodeName = node.getName();
-                SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
-                BoundSql boundSql = new BoundSql(sql, parameter, parameterType, resultType);
-                MappedStatement mappedStatement = new MappedStatement.Builder(configuration, msId, sqlCommandType, boundSql).build();
-                // 添加解析 SQL
-                configuration.addMappedStatement(mappedStatement);
-            }
-
-            // 注册 Mapper 映射器
-            configuration.addMapper(Resources.classForName(namespace));
         }
     }
 

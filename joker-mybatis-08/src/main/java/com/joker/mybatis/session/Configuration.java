@@ -13,13 +13,22 @@ import com.joker.mybatis.executor.statement.StatementHandler;
 import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.mapping.Environment;
 import com.joker.mybatis.mapping.MappedStatement;
+import com.joker.mybatis.reflection.MetaObject;
+import com.joker.mybatis.reflection.factory.DefaultObjectFactory;
+import com.joker.mybatis.reflection.factory.ObjectFactory;
+import com.joker.mybatis.reflection.wrapper.DefaultObjectWrapperFactory;
+import com.joker.mybatis.reflection.wrapper.ObjectWrapperFactory;
+import com.joker.mybatis.scripting.LanguageDriverRegistry;
+import com.joker.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.joker.mybatis.transaction.Transaction;
-import com.joker.mybatis.transaction.jdbc.JdbcTransaction;
 import com.joker.mybatis.transaction.jdbc.JdbcTransactionFactory;
 import com.joker.mybatis.type.TypeAliasRegistry;
+import com.joker.mybatis.type.TypeHandlerRegistry;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -38,21 +47,32 @@ public class Configuration {
      * 环境
      */
     protected Environment environment;
-
     /**
      * 映射器注册机
      */
     protected MapperRegistry mapperRegistry = new MapperRegistry(this);
-
     /**
      * 映射的语句，存在Map里
      */
     protected final Map<String, MappedStatement> mappedStatements = new HashMap<>();
-
     /**
      * 类型别名注册机
      */
     protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+    protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
+    /**
+     * 类型处理器注册机
+     */
+    protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
+
+    /**
+     * 对象工厂和对象包装器工厂
+     */
+    protected ObjectFactory objectFactory = new DefaultObjectFactory();
+    protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
+
+    protected final Set<String> loadedResources = new HashSet<>();
+    protected String databaseId;
 
     public Configuration() {
         typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
@@ -61,6 +81,7 @@ public class Configuration {
         typeAliasRegistry.registerAlias("UNPOOLED", UnpooledDataSourceFactory.class);
         typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
 
+        languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     }
 
     public void addMappers(String packageName) {
@@ -91,8 +112,34 @@ public class Configuration {
         return typeAliasRegistry;
     }
 
+    // 类型处理器注册机
+    public TypeHandlerRegistry getTypeHandlerRegistry() {
+        return typeHandlerRegistry;
+    }
+
     public Environment getEnvironment() {
         return environment;
+    }
+
+    public String getDatabaseId() {
+        return databaseId;
+    }
+
+    // 创建元对象
+    public MetaObject newMetaObject(Object object) {
+        return MetaObject.forObject(object, objectFactory, objectWrapperFactory);
+    }
+
+    public boolean isResourceLoaded(String resource) {
+        return loadedResources.contains(resource);
+    }
+
+    public void addLoadedResource(String resource) {
+        loadedResources.add(resource);
+    }
+
+    public LanguageDriverRegistry getLanguageRegistry() {
+        return languageRegistry;
     }
 
     public void setEnvironment(Environment environment) {
