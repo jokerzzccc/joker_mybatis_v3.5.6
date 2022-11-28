@@ -17,6 +17,7 @@
         <module>joker-mybatis-06</module>
         <module>joker-mybatis-07</module>
         <module>joker-mybatis-08</module>
+        <module>joker-mybatis-09</module>
     </modules>
 
     <properties>
@@ -26,6 +27,13 @@
 
 
     <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/ognl/ognl -->
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+            <version>3.3.2</version>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
