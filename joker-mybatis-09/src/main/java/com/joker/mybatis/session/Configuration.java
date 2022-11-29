@@ -6,6 +6,7 @@ import com.joker.mybatis.datasource.pooled.PooledDataSourceFactory;
 import com.joker.mybatis.datasource.unpooled.UnpooledDataSourceFactory;
 import com.joker.mybatis.executor.Executor;
 import com.joker.mybatis.executor.SimpleExecutor;
+import com.joker.mybatis.executor.parameter.ParameterHandler;
 import com.joker.mybatis.executor.resultset.DefaultResultSetHandler;
 import com.joker.mybatis.executor.resultset.ResultSetHandler;
 import com.joker.mybatis.executor.statement.PreparedStatementHandler;
@@ -18,6 +19,7 @@ import com.joker.mybatis.reflection.factory.DefaultObjectFactory;
 import com.joker.mybatis.reflection.factory.ObjectFactory;
 import com.joker.mybatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import com.joker.mybatis.reflection.wrapper.ObjectWrapperFactory;
+import com.joker.mybatis.scripting.LanguageDriver;
 import com.joker.mybatis.scripting.LanguageDriverRegistry;
 import com.joker.mybatis.scripting.xmltags.XMLLanguageDriver;
 import com.joker.mybatis.transaction.Transaction;
@@ -181,5 +183,17 @@ public class Configuration {
     public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
         return new PreparedStatementHandler(executor, mappedStatement, parameter, resultHandler, boundSql);
     }
+
+    public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+        // 创建参数处理器
+        ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+        // 插件的一些参数，也是在这里处理，暂时不添加这部分内容 interceptorChain.pluginAll(parameterHandler);
+        return parameterHandler;
+    }
+
+    public LanguageDriver getDefaultScriptingLanguageInstance() {
+        return languageRegistry.getDefaultDriver();
+    }
+
 
 }

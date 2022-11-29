@@ -1,5 +1,8 @@
 package com.joker.mybatis.scripting;
 
+import com.joker.mybatis.executor.parameter.ParameterHandler;
+import com.joker.mybatis.mapping.BoundSql;
+import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.mapping.SqlSource;
 import com.joker.mybatis.session.Configuration;
 import org.dom4j.Element;
@@ -30,5 +33,10 @@ public interface LanguageDriver {
      * @date 2022/11/23
      */
     SqlSource createSqlSource(Configuration configuration, Element script, Class<?> parameterType);
+
+    /**
+     * 创建参数处理器
+     */
+    ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
 
 }

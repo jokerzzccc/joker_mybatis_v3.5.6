@@ -1,7 +1,11 @@
 package com.joker.mybatis.scripting.xmltags;
 
+import com.joker.mybatis.executor.parameter.ParameterHandler;
+import com.joker.mybatis.mapping.BoundSql;
+import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.mapping.SqlSource;
 import com.joker.mybatis.scripting.LanguageDriver;
+import com.joker.mybatis.scripting.defaults.DefaultParameterHandler;
 import com.joker.mybatis.session.Configuration;
 import org.dom4j.Element;
 
@@ -21,6 +25,11 @@ public class XMLLanguageDriver implements LanguageDriver {
         XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);
         return builder.parseScriptNode();
 
+    }
+
+    @Override
+    public ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+        return new DefaultParameterHandler(mappedStatement, parameterObject, boundSql);
     }
 
 }

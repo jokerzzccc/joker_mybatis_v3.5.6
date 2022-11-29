@@ -14,4 +14,6 @@ public interface IUserDao {
 
     User queryUserInfoById(long uId);
 
+    User queryUserInfo(User req);
+
 }

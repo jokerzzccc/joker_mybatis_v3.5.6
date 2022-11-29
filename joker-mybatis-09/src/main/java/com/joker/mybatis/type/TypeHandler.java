@@ -1,13 +1,12 @@
 package com.joker.mybatis.type;
 
-import cn.hutool.db.meta.JdbcType;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
  * <p>
- * 类型处理器
+ * 类型转换处理器:
+ * 策略模式，
  * </p>
  *
  * @author jokerzzccc
@@ -16,10 +15,15 @@ import java.sql.SQLException;
 public interface TypeHandler<T> {
 
     /**
+     * 设置 PreparedStatement 的指定参数
      * <p>
-     * 设置参数
-     * </P>
+     * Java Type => JDBC Type
      *
+     * @param ps PreparedStatement 对象
+     * @param i 参数占位符的位置
+     * @param parameter 参数
+     * @param jdbcType JDBC 类型
+     * @throws SQLException 当发生 SQL 异常时
      * @author jokerzzccc
      * @date 2022/11/20
      */
