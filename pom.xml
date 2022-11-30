@@ -18,6 +18,7 @@
         <module>joker-mybatis-07</module>
         <module>joker-mybatis-08</module>
         <module>joker-mybatis-09</module>
+        <module>joker-mybatis-10</module>
     </modules>
 
     <properties>
