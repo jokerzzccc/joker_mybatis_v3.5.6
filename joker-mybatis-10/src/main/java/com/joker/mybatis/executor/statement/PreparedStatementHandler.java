@@ -4,6 +4,7 @@ import com.joker.mybatis.executor.Executor;
 import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.session.ResultHandler;
+import com.joker.mybatis.session.RowBounds;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,15 +20,15 @@ import java.util.List;
  * @author jokerzzccc
  * @date 2022/10/22
  */
-public class PreparedStatementHandler extends BaseStatementHandler{
+public class PreparedStatementHandler extends BaseStatementHandler {
 
-    public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
-        super(executor, mappedStatement, parameterObject, resultHandler, boundSql);
+    public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+        super(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
     }
 
     @Override
     protected Statement instantiateStatement(Connection connection) throws SQLException {
-        String  sql = boundSql.getSql();
+        String sql = boundSql.getSql();
         return connection.prepareStatement(sql);
     }
 

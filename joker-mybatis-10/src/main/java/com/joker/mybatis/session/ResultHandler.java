@@ -10,6 +10,11 @@ package com.joker.mybatis.session;
  */
 public interface ResultHandler {
 
-    void handleResult();
+    /**
+     * 处理结果
+     *
+     * @param context 结果上下文
+     */
+    void handleResult(ResultContext context);
 
 }

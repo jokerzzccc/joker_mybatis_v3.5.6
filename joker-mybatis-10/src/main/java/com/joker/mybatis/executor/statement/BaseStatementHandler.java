@@ -7,6 +7,8 @@ import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.session.Configuration;
 import com.joker.mybatis.session.ResultHandler;
+import com.joker.mybatis.session.RowBounds;
+import com.sun.rowset.internal.Row;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,23 +32,27 @@ public abstract class BaseStatementHandler implements StatementHandler {
     protected final ResultSetHandler resultSetHandler;
     protected final ParameterHandler parameterHandler;
 
+    protected final RowBounds rowBounds;
     protected BoundSql boundSql;
 
-    public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
+    public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject,
+            RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
         this.configuration = mappedStatement.getConfiguration();
         this.executor = executor;
         this.mappedStatement = mappedStatement;
+        this.rowBounds = rowBounds;
         this.boundSql = boundSql;
 
         // 参数和结果集
         this.parameterObject = parameterObject;
-        this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, boundSql);
+        this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, resultHandler, boundSql);
         this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
     }
 
     /**
      * 包括定义实例化抽象方法，这个方法交由各个具体的实现子类进行处理。
      * 包括；SimpleStatementHandler 简单语句处理器和 PreparedStatementHandler 预处理语句处理器。
+     *
      * @param connection
      * @return
      * @throws SQLException
@@ -67,6 +73,5 @@ public abstract class BaseStatementHandler implements StatementHandler {
     }
 
     protected abstract Statement instantiateStatement(Connection connection) throws SQLException;
-
 
 }
