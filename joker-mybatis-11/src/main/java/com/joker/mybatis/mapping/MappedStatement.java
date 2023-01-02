@@ -27,6 +27,11 @@ public class MappedStatement {
         // constructor disabled
     }
 
+    public BoundSql getBoundSql(Object parameterObject) {
+        // 调用 SqlSource#getBoundSql
+        return sqlSource.getBoundSql(parameterObject);
+    }
+
     /**
      * 建造者：
      */

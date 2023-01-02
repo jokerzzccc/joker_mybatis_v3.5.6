@@ -51,7 +51,7 @@ public class JdbcTransaction implements Transaction {
     @Override
     public void commit() throws SQLException {
         if (connection != null && !connection.getAutoCommit()) {
-            connection.rollback();
+            connection.commit();
         }
     }
 
