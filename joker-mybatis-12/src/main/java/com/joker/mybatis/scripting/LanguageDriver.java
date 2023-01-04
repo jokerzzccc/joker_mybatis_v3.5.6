@@ -35,6 +35,19 @@ public interface LanguageDriver {
     SqlSource createSqlSource(Configuration configuration, Element script, Class<?> parameterType);
 
     /**
+     * Creates an {@link SqlSource} that will hold the statement read from an annotation.
+     * It is called during startup, when the mapped statement is read from a class or an xml file.
+     * <p>
+     * 创建SQL源码(annotation 注解方式)
+     *
+     * @param configuration The MyBatis configuration
+     * @param script The content of the annotation
+     * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
+     * @return the sql source
+     */
+    SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType);
+
+    /**
      * 创建参数处理器
      */
     ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);

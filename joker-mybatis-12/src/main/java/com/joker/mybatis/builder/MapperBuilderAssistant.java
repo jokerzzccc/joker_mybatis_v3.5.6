@@ -1,9 +1,6 @@
 package com.joker.mybatis.builder;
 
-import com.joker.mybatis.mapping.MappedStatement;
-import com.joker.mybatis.mapping.ResultMap;
-import com.joker.mybatis.mapping.SqlCommandType;
-import com.joker.mybatis.mapping.SqlSource;
+import com.joker.mybatis.mapping.*;
 import com.joker.mybatis.scripting.LanguageDriver;
 import com.joker.mybatis.session.Configuration;
 
@@ -42,6 +39,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
         }
         if (isReference) {
             if (base.contains(".")) return base;
+        } else {
+            if (base.startsWith(currentNamespace + ".")) {
+                return base;
+            }
+            if (base.contains(".")) {
+                throw new RuntimeException("Dots are not allowed in element names, please remove it from " + base);
+            }
         }
         return currentNamespace + "." + base;
     }
@@ -84,7 +88,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
         List<ResultMap> resultMaps = new ArrayList<>();
 
         if (resultMap != null) {
-            // TODO：暂无Map结果映射配置，本章节不添加此逻辑
+            String[] resultMapNames = resultMap.split(",");
+            for (String resultMapName : resultMapNames) {
+                resultMaps.add(configuration.getResultMap(resultMapName.trim()));
+            }
         } else if (resultType != null) {
             ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(
                     configuration, statementBuilder.id() + "-Inline", resultType, new ArrayList<>());
@@ -92,6 +99,18 @@ public class MapperBuilderAssistant extends BaseBuilder {
             resultMaps.add(inlineResultMapBuilder.build());
         }
         statementBuilder.resultMaps(resultMaps);
+    }
+
+    public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(
+                configuration,
+                id,
+                type,
+                resultMappings);
+
+        ResultMap resultMap = inlineResultMapBuilder.build();
+        configuration.addResultMap(resultMap);
+        return resultMap;
     }
 
 }

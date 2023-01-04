@@ -119,11 +119,17 @@ public class XMLConfigBuilder extends BaseBuilder {
         List<Element> mapperList = mappers.elements("mapper");
         for (Element element : mapperList) {
             String resource = element.attributeValue("resource");
-            InputStream inputStream = Resources.getResourceAsStream(resource);
-            // 在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource);
-            mapperParser.parse();
-
+            String mapperClass = element.attributeValue("class");
+            // XML 解析
+            if (resource != null && mapperClass == null) {
+                InputStream inputStream = Resources.getResourceAsStream(resource);
+                // 在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
+                XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource);
+                mapperParser.parse();
+            } else if (resource == null && mapperClass != null) { // Annotation 注解解析
+                Class<?> mapperInterface = Resources.classForName(mapperClass);
+                configuration.addMapper(mapperInterface);
+            }
         }
     }
 
