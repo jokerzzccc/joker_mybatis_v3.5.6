@@ -2,7 +2,11 @@ package com.joker.mybatis.builder.xml;
 
 import com.joker.mybatis.builder.BaseBuilder;
 import com.joker.mybatis.builder.MapperBuilderAssistant;
+import com.joker.mybatis.builder.ResultMapResolver;
 import com.joker.mybatis.io.Resources;
+import com.joker.mybatis.mapping.ResultFlag;
+import com.joker.mybatis.mapping.ResultMap;
+import com.joker.mybatis.mapping.ResultMapping;
 import com.joker.mybatis.session.Configuration;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -10,6 +14,8 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,18 +72,90 @@ public class XMLMapperBuilder extends BaseBuilder {
      * @param element
      */
     private void configurationElement(Element element) {
-        // 1.配置 namespace
+        // 1. 配置 namespace
         String namespace = element.attributeValue("namespace");
         if (namespace.equals("")) {
             throw new RuntimeException("Mapper's namespace cannot be empty");
         }
         builderAssistant.setCurrentNamespace(namespace);
 
-        // 2.配置 select|insert|update|delete
+        // 2. 解析 resultMap
+        resultMapElements(element.elements("resultMap"));
+
+        // 3. 配置 select|insert|update|delete
         buildStatementFromContext(element.elements("select"),
                 element.elements("insert"),
                 element.elements("update"),
                 element.elements("delete"));
+    }
+
+    private void resultMapElements(List<Element> list) {
+        for (Element element : list) {
+            try {
+                resultMapElement(element, Collections.emptyList());
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
+    /**
+     * <p>
+     * 解析 ResultMap 标签
+     * </P>
+     * 比如：
+     * <resultMap id="activityMap" type="cn.bugstack.mybatis.test.po.Activity">
+     * <id column="id" property="id"/>
+     * <result column="activity_id" property="activityId"/>
+     * <result column="activity_name" property="activityName"/>
+     * <result column="activity_desc" property="activityDesc"/>
+     * <result column="create_time" property="createTime"/>
+     * <result column="update_time" property="updateTime"/>
+     * </resultMap>
+     *
+     * @param resultMapNode
+     * @param additionalResultMappings
+     * @author jokerzzccc
+     * @date 2023/1/6
+     */
+    private ResultMap resultMapElement(Element resultMapNode, List<ResultMapping> additionalResultMappings) throws Exception {
+        String id = resultMapNode.attributeValue("id");
+        String type = resultMapNode.attributeValue("type");
+        Class<?> typeClass = resolveClass(type);
+
+        List<ResultMapping> resultMappings = new ArrayList<>();
+        resultMappings.addAll(additionalResultMappings);
+
+        List<Element> resultChildren = resultMapNode.elements();
+        for (Element resultChild : resultChildren) {
+            List<ResultFlag> flags = new ArrayList<>();
+            if ("id".equals(resultChild.getName())) {
+                flags.add(ResultFlag.ID);
+            }
+            // 构建 ResultMapping
+            resultMappings.add(buildResultMappingFromContext(resultChild, typeClass, flags));
+        }
+
+        // 创建结果集映射器
+        ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, resultMappings);
+        return resultMapResolver.resolve();
+    }
+
+    /**
+     * 将当前节点构建成 ResultMapping 对象;
+     * <p>
+     * 比如：
+     * <id column="id" property="id"/>
+     * <result column="activity_id" property="activityId"/>
+     *
+     * @param context resultMap 子节点
+     * @param resultType
+     * @param flags
+     * @return
+     */
+    private ResultMapping buildResultMappingFromContext(Element context, Class<?> resultType, List<ResultFlag> flags) {
+        String property = context.attributeValue("property");
+        String column = context.attributeValue("column");
+        return builderAssistant.buildResultMapping(resultType, property, column, flags);
     }
 
     /**

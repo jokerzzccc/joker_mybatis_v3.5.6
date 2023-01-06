@@ -8,9 +8,10 @@
         <environment id="development">
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
-<!--            <dataSource type="UNPOOLED">-->
+                <!--            <dataSource type="UNPOOLED">-->
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://127.0.0.1:3306/bugstack_notes?useUnicode=true&amp;characterEncoding=utf8"/>
+                <property name="url"
+                          value="jdbc:mysql://127.0.0.1:3306/bugstack_notes?useUnicode=true&amp;characterEncoding=utf8"/>
                 <property name="username" value="root"/>
                 <property name="password" value="123456"/>
             </dataSource>
@@ -19,9 +20,7 @@
 
     <mappers>
         <!-- XML 配置 -->
-<!--        <mapper resource="mapper/UserMapper.xml"/>-->
-        <!--注解配置-->
-        <mapper class="com.joker.mybatis.test.dao.IUserDao"/>
+        <mapper resource="mapper/Activity_Mapper.xml"/>
     </mappers>
 
 </configuration>
