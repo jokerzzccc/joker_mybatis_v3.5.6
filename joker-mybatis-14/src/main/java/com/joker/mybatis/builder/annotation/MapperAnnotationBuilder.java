@@ -6,6 +6,9 @@ import com.joker.mybatis.annotations.Select;
 import com.joker.mybatis.annotations.Update;
 import com.joker.mybatis.binding.MapperMethod;
 import com.joker.mybatis.builder.MapperBuilderAssistant;
+import com.joker.mybatis.executor.keygen.Jdbc3KeyGenerator;
+import com.joker.mybatis.executor.keygen.KeyGenerator;
+import com.joker.mybatis.executor.keygen.NoKeyGenerator;
 import com.joker.mybatis.mapping.SqlCommandType;
 import com.joker.mybatis.mapping.SqlSource;
 import com.joker.mybatis.scripting.LanguageDriver;
@@ -81,6 +84,15 @@ public class MapperAnnotationBuilder {
         if (sqlSource != null) {
             final String mappedStatementId = type.getName() + "." + method.getName();
             SqlCommandType sqlCommandType = getSqlCommandType(method);
+
+            KeyGenerator keyGenerator;
+            String keyProperty = "id";
+            if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
+                keyGenerator = configuration.isUseGeneratedKeys() ? new Jdbc3KeyGenerator() : new NoKeyGenerator();
+            } else {
+                keyGenerator = new NoKeyGenerator();
+            }
+
             boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
             String resultMapId = null;
@@ -96,6 +108,8 @@ public class MapperAnnotationBuilder {
                     parameterTypeClass,
                     resultMapId,
                     getReturnType(method),
+                    keyGenerator,
+                    keyProperty,
                     languageDriver
             );
         }

@@ -1,5 +1,6 @@
 package com.joker.mybatis.builder;
 
+import com.joker.mybatis.executor.keygen.KeyGenerator;
 import com.joker.mybatis.mapping.*;
 import com.joker.mybatis.reflection.MetaClass;
 import com.joker.mybatis.scripting.LanguageDriver;
@@ -97,11 +98,17 @@ public class MapperBuilderAssistant extends BaseBuilder {
             Class<?> parameterType,
             String resultMap,
             Class<?> resultType,
+            KeyGenerator keyGenerator,
+            String keyProperty,
             LanguageDriver lang
     ) {
         // 给id加上 namespace 前缀：com.joker.mybatis.test.dao.IUserDao.queryUserInfoById
         id = applyCurrentNamespace(id, false);
+
         MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlCommandType, sqlSource, resultType);
+        statementBuilder.resource(resource);
+        statementBuilder.keyGenerator(keyGenerator);
+        statementBuilder.keyProperty(keyProperty);
 
         // 结果映射，给 MappedStatement#resultMaps
         setStatementResultMap(resultMap, resultType, statementBuilder);

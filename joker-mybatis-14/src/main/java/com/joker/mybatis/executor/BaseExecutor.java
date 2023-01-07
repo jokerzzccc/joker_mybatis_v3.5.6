@@ -43,6 +43,12 @@ public abstract class BaseExecutor implements Executor {
         return doUpdate(ms, parameter);
     }
 
+    @Override
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+        BoundSql boundSql = ms.getBoundSql(parameter);
+        return query(ms, parameter, rowBounds, resultHandler, boundSql);
+    }
+
     /**
      * 在 query 查询方法中，封装一些必要的流程处理，如果检测关闭等，
      * 在 Mybatis 源码中还有一些缓存的操作，这里暂时剔除掉，以核心流程为主。

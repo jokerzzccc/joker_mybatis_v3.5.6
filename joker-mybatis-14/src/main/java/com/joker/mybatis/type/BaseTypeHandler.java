@@ -32,6 +32,11 @@ public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
         return getNullableResult(rs, columnName);
     }
 
+    @Override
+    public T getResult(ResultSet rs, int columnIndex) throws SQLException {
+        return getNullableResult(rs, columnIndex);
+    }
+
     /**
      * <p>
      * 定义抽象方法，由子类实现不同类型的设置
@@ -40,5 +45,7 @@ public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
     protected abstract void setNonNullParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
     protected abstract T getNullableResult(ResultSet rs, String columnName) throws SQLException;
+
+    public abstract T getNullableResult(ResultSet rs, int columnIndex) throws SQLException;
 
 }

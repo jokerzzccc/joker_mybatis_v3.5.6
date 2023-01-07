@@ -1,6 +1,7 @@
 package com.joker.mybatis.executor.statement;
 
 import com.joker.mybatis.executor.Executor;
+import com.joker.mybatis.executor.keygen.KeyGenerator;
 import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.session.ResultHandler;
@@ -43,9 +44,15 @@ public class PreparedStatementHandler extends BaseStatementHandler {
      */
     @Override
     public int update(Statement statement) throws SQLException {
+        // 1. 执行 insert/delete/update
         PreparedStatement ps = (PreparedStatement) statement;
         ps.execute();
-        return ps.getUpdateCount();
+        int rows = ps.getUpdateCount();
+        // 2. 执行 selectKey 语句
+        Object parameterObject = boundSql.getParameterObject();
+        KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+        keyGenerator.processAfter(executor, mappedStatement, ps, parameterObject);
+        return rows;
     }
 
     @Override
