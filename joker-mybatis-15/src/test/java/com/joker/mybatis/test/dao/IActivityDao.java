@@ -12,8 +12,6 @@ import com.joker.mybatis.test.po.Activity;
  */
 public interface IActivityDao {
 
-    Activity queryActivityById(Long activityId);
-
-    Integer insert(Activity activity);
+    Activity queryActivityById(Activity activity);
 
 }

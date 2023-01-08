@@ -38,7 +38,9 @@
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
-            <version>3.3.2</version>
+            <version>3.0.8</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
@@ -117,7 +119,6 @@
         </dependency>
         <!-- LOGGING end -->
     </dependencies>
-
 
 
 </project>
