@@ -48,22 +48,4 @@ public class ApiTest {
         logger.info("测试结果：{}", JSON.toJSONString(res));
     }
 
-    @Test
-    public void test_ognl() throws OgnlException {
-        Activity req = new Activity();
-        req.setActivityId(1L);
-        req.setActivityName("测试活动");
-        req.setActivityDesc("joker的测试内容");
-
-        OgnlContext context = new OgnlContext();
-        context.setRoot(req);
-        Object root = context.getRoot();
-
-        Object activityName = Ognl.getValue("activityName", context, root);
-        Object activityDesc = Ognl.getValue("activityDesc", context, root);
-        Object value = Ognl.getValue("activityDesc.length()", context, root);
-
-        System.out.println(activityName + "\t" + activityDesc + " length：" + value);
-    }
-
 }

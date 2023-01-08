@@ -4,6 +4,7 @@ import com.joker.mybatis.builder.BaseBuilder;
 import com.joker.mybatis.datasource.DataSourceFactory;
 import com.joker.mybatis.io.Resources;
 import com.joker.mybatis.mapping.Environment;
+import com.joker.mybatis.plugin.Interceptor;
 import com.joker.mybatis.session.Configuration;
 import com.joker.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
@@ -50,6 +51,8 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     public Configuration parse() {
         try {
+            // 解析 <plugins /> 标签
+            pluginElement(root.element("plugins"));
             // 环境
             environmentsElement(root.element("environments"));
             // 解析映射器
@@ -58,6 +61,45 @@ public class XMLConfigBuilder extends BaseBuilder {
             throw new RuntimeException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
         }
         return configuration;
+    }
+
+    /**
+     * 解析 <plugins /> 标签:
+     * 解析插件的处理需要判断插件是否存在，如果存在则按照插件配置的列表分别进行解析，
+     * 提取配置中的接口信息以及属性配置，存放到Configuration配置的插件拦截器链中。
+     * 通过这样的方式把插件和要触发的监控点建立起连接。
+     * <p>
+     * Mybatis 允许你在某一点切入映射语句执行的调度
+     * 比如：
+     * <plugins>
+     * <plugin interceptor="com.joker.mybatis.test.plugin.TestPlugin">
+     * <property name="test00" value="100"/>
+     * <property name="test01" value="100"/>
+     * </plugin>
+     * </plugins>
+     */
+
+    private void pluginElement(Element parent) throws Exception {
+        if (parent == null) {
+            return;
+        }
+        // 遍历 <plugins /> 标签
+        List<Element> elements = parent.elements();
+        for (Element element : elements) {
+            String interceptor = element.attributeValue("interceptor");
+            // 参数配置
+            Properties properties = new Properties();
+            List<Element> propertyElementList = element.elements("property");
+            for (Element property : propertyElementList) {
+                properties.setProperty(property.attributeValue("name"), property.attributeValue("value"));
+            }
+            // <1> 创建 Interceptor 对象，并设置属性
+            // 获取插件实现类并实例化：cn.bugstack.mybatis.test.plugin.TestPlugin
+            Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
+            interceptorInstance.setProperties(properties);
+            // <2> 添加到 configuration 中
+            configuration.addInterceptor(interceptorInstance);
+        }
     }
 
     /**

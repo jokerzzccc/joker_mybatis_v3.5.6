@@ -1,5 +1,6 @@
 package com.joker.mybatis.executor.statement;
 
+import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.session.ResultHandler;
 
 import java.sql.Connection;
@@ -50,5 +51,12 @@ public interface StatementHandler {
      * @throws SQLException
      */
     <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException;
+
+    /**
+     * 获取 绑定 SQL
+     *
+     * @return BoundSql 对象
+     */
+    BoundSql getBoundSql();
 
 }
