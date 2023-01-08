@@ -24,6 +24,7 @@
         <module>joker-mybatis-13</module>
         <module>joker-mybatis-14</module>
         <module>joker-mybatis-15</module>
+        <module>joker-mybatis-16</module>
     </modules>
 
     <properties>
