@@ -1,5 +1,6 @@
 package com.joker.mybatis.executor;
 
+import com.joker.mybatis.cache.CacheKey;
 import com.joker.mybatis.mapping.BoundSql;
 import com.joker.mybatis.mapping.MappedStatement;
 import com.joker.mybatis.session.ResultHandler;
@@ -33,9 +34,9 @@ public interface Executor {
     int update(MappedStatement ms, Object parameter) throws SQLException;
 
     /**
-     * 查询，带 ResultHandler + CacheKey + BoundSql
+     * 查询，含缓存，带 ResultHandler + CacheKey + BoundSql
      */
-    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException;
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException;
 
     /**
      * 查询，带 ResultHandler
@@ -49,5 +50,17 @@ public interface Executor {
     void rollback(boolean required) throws SQLException;
 
     void close(boolean forceRollback);
+
+    /**
+     * 清理本地 Session 缓存
+     */
+    void clearLocalCache();
+
+    /**
+     * 创建 CacheKey：
+     * CacheKey 的创建，需要依赖于；mappedStatementld+offset+limit+
+     * SQL+queryParams+environment信息构建出一个哈希值
+     */
+    CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
 
 }

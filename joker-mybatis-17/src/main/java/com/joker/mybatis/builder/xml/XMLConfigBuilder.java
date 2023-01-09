@@ -6,6 +6,7 @@ import com.joker.mybatis.io.Resources;
 import com.joker.mybatis.mapping.Environment;
 import com.joker.mybatis.plugin.Interceptor;
 import com.joker.mybatis.session.Configuration;
+import com.joker.mybatis.session.LocalCacheScope;
 import com.joker.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -53,6 +54,8 @@ public class XMLConfigBuilder extends BaseBuilder {
         try {
             // 解析 <plugins /> 标签
             pluginElement(root.element("plugins"));
+            // 设置：解析 <settings /> 标签
+            settingsElement(root.element("settings"));
             // 环境
             environmentsElement(root.element("environments"));
             // 解析映射器
@@ -100,6 +103,28 @@ public class XMLConfigBuilder extends BaseBuilder {
             // <2> 添加到 configuration 中
             configuration.addInterceptor(interceptorInstance);
         }
+    }
+
+    /**
+     * 赋值 <settings /> 到 Configuration 属性:
+     * 比如：
+     * <settings>
+     * <!--缓存级别：SESSION/STATEMENT-->
+     * <setting name="localCacheScope" value="SESSION"/>
+     * </settings>
+     *
+     * @param context
+     */
+    private void settingsElement(Element context) {
+        if (context == null) {
+            return;
+        }
+        List<Element> elements = context.elements();
+        Properties props = new Properties();
+        for (Element element : elements) {
+            props.setProperty(element.attributeValue("name"), element.attributeValue("value"));
+        }
+        configuration.setLocalCacheScope(LocalCacheScope.valueOf(props.getProperty("localCacheScope")));
     }
 
     /**

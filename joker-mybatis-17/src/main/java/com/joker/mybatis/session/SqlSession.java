@@ -94,6 +94,18 @@ public interface SqlSession {
     Configuration getConfiguration();
 
     /**
+     * 关闭Session
+     * Closes the session.
+     */
+    void close();
+
+    /**
+     * 清理 Session 缓存
+     * Clears local session cache.
+     */
+    void clearCache();
+
+    /**
      * Retrieves a mapper.
      * 得到映射器;
      * 这个巧妙的使用了泛型，使得类型安全
