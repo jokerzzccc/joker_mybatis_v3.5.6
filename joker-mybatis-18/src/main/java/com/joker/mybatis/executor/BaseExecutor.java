@@ -128,7 +128,6 @@ public abstract class BaseExecutor implements Executor {
         return list;
     }
 
-
     protected abstract int doUpdate(MappedStatement ms, Object parameter) throws SQLException;
 
     protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException;
@@ -209,7 +208,10 @@ public abstract class BaseExecutor implements Executor {
         return cacheKey;
     }
 
-
+    @Override
+    public void setExecutorWrapper(Executor executor) {
+        this.wrapper = wrapper;
+    }
 
     @Override
     public void close(boolean forceRollback) {
@@ -223,6 +225,7 @@ public abstract class BaseExecutor implements Executor {
             logger.warn("Unexpected exception on closing transaction.  Cause: " + e);
         } finally {
             transaction = null;
+            localCache = null;
             closed = true;
         }
     }

@@ -5,9 +5,12 @@
 <configuration>
 
     <settings>
-        <!--缓存级别：SESSION/STATEMENT -->
-        <setting name="localCacheScope" value="SESSION"/>
+        <!-- 全局缓存：true/false -->
+        <setting name="cacheEnabled" value="true"/>
+        <!--缓存级别：SESSION/STATEMENT-->
+        <setting name="localCacheScope" value="STATEMENT"/>
     </settings>
+
 
     <environments default="development">
         <environment id="development">

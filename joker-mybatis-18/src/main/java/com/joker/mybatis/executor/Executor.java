@@ -63,4 +63,11 @@ public interface Executor {
      */
     CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
 
+    /**
+     * 设置包装的 Executor 对象
+     *
+     * @param executor
+     */
+    void setExecutorWrapper(Executor executor);
+
 }
